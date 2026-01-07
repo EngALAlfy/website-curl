@@ -6,6 +6,26 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { URL } = require('url');
+const archiver = require('archiver');
+
+// Helper to extract clean domain name from URL
+function getDomainName(url) {
+    try {
+        const parsed = new URL(url);
+        // Remove www. and replace dots with dashes
+        return parsed.hostname.replace(/^www\./, '').replace(/\./g, '-');
+    } catch {
+        return 'unknown';
+    }
+}
+
+// Generate session ID with domain name for better folder naming
+function generateSessionId(url) {
+    const domain = getDomainName(url);
+    const shortId = uuidv4().split('-')[0]; // Just use first part of UUID
+    const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    return `${domain}_${timestamp}_${shortId}`;
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -397,7 +417,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        const sessionId = uuidv4();
+        const sessionId = generateSessionId(url);
         const session = {
             id: sessionId,
             url,
@@ -407,7 +427,7 @@ io.on('connection', (socket) => {
         };
 
         activeSessions.set(sessionId, session);
-        socket.emit('session-started', { sessionId });
+        socket.emit('session-started', { sessionId, domain: getDomainName(url) });
 
         // Start crawling
         crawlWebsite(sessionId, url, options, socket);
@@ -474,6 +494,57 @@ app.delete('/api/sessions/:sessionId', (req, res) => {
         res.json({ success: true });
     } else {
         res.status(404).json({ error: 'Session not found' });
+    }
+});
+
+// API endpoint to download all screenshots as ZIP
+app.get('/api/sessions/:sessionId/download', async (req, res) => {
+    const { sessionId } = req.params;
+    const sessionDir = path.join(screenshotsDir, sessionId);
+
+    if (!fs.existsSync(sessionDir)) {
+        return res.status(404).json({ error: 'Session not found' });
+    }
+
+    try {
+        // Set up response headers for ZIP download
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${sessionId}-screenshots.zip"`);
+
+        // Create archive
+        const archive = archiver('zip', {
+            zlib: { level: 6 } // Compression level
+        });
+
+        // Pipe archive to response
+        archive.pipe(res);
+
+        // Handle archive errors
+        archive.on('error', (err) => {
+            console.error('Archive error:', err);
+            res.status(500).json({ error: 'Failed to create archive' });
+        });
+
+        // Get all PNG files in session directory
+        const files = fs.readdirSync(sessionDir).filter(f => f.endsWith('.png'));
+
+        // Add each file to archive
+        for (const file of files) {
+            const filePath = path.join(sessionDir, file);
+            archive.file(filePath, { name: file });
+        }
+
+        // Also add summary.json if it exists
+        const summaryPath = path.join(sessionDir, 'summary.json');
+        if (fs.existsSync(summaryPath)) {
+            archive.file(summaryPath, { name: 'summary.json' });
+        }
+
+        // Finalize the archive
+        await archive.finalize();
+    } catch (error) {
+        console.error('Download error:', error);
+        res.status(500).json({ error: 'Failed to prepare download' });
     }
 });
 

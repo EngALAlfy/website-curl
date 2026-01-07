@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,8 @@
     <meta name="description" content="Crawl websites and capture full-page screenshots with automatic link discovery">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -69,14 +71,17 @@
             width: 8px;
             height: 8px;
         }
+
         ::-webkit-scrollbar-track {
             background: rgba(15, 23, 42, 0.5);
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb {
             background: rgba(100, 116, 139, 0.5);
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(100, 116, 139, 0.8);
         }
@@ -87,10 +92,19 @@
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
         }
+
         @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Glassmorphism */
@@ -104,6 +118,7 @@
         .gradient-border {
             position: relative;
         }
+
         .gradient-border::before {
             content: '';
             position: absolute;
@@ -131,6 +146,7 @@
         .screenshot-card {
             transition: all 0.3s ease;
         }
+
         .screenshot-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -145,12 +161,23 @@
         .pulse-dot {
             animation: pulse-dot 1.5s ease-in-out infinite;
         }
+
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
         }
     </style>
 </head>
+
 <body class="bg-gradient-animate min-h-screen font-sans text-dark-100 overflow-x-hidden">
     <!-- Background Orbs -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -166,32 +193,39 @@
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo -->
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-violet-500 flex items-center justify-center shadow-lg shadow-primary-500/30">
-                            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <path d="M21 15l-5-5L5 21"/>
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-violet-500 flex items-center justify-center shadow-lg shadow-primary-500/30">
+                            <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="M21 15l-5-5L5 21" />
                             </svg>
                         </div>
-                        <span class="text-xl font-bold bg-gradient-to-r from-primary-400 to-violet-400 bg-clip-text text-transparent">
+                        <span
+                            class="text-xl font-bold bg-gradient-to-r from-primary-400 to-violet-400 bg-clip-text text-transparent">
                             ScreenCrawl
                         </span>
                     </div>
 
                     <!-- Navigation Tabs -->
                     <nav class="flex items-center gap-1 p-1 rounded-xl bg-dark-800/50">
-                        <button class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all" data-tab="crawler">
+                        <button
+                            class="nav-tab active flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                            data-tab="crawler">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                                <path d="M2 17l10 5 10-5"/>
-                                <path d="M2 12l10 5 10-5"/>
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
                             </svg>
                             Crawler
                         </button>
-                        <button class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-dark-400 hover:text-dark-200" data-tab="history">
+                        <button
+                            class="nav-tab flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all text-dark-400 hover:text-dark-200"
+                            data-tab="history">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
                             </svg>
                             History
                         </button>
@@ -217,19 +251,16 @@
                             <label for="website-url" class="block text-sm font-medium text-dark-300">Website URL</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-dark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="2" y1="12" x2="22" y2="12"/>
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    <svg class="w-5 h-5 text-dark-500" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="2" y1="12" x2="22" y2="12" />
+                                        <path
+                                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                                     </svg>
                                 </div>
-                                <input 
-                                    type="url" 
-                                    id="website-url" 
-                                    placeholder="https://example.com" 
-                                    required
-                                    class="w-full pl-12 pr-4 py-3.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white placeholder-dark-500 focus:outline-none focus:border-primary-500/50 input-glow transition-all"
-                                >
+                                <input type="url" id="website-url" placeholder="https://example.com" required
+                                    class="w-full pl-12 pr-4 py-3.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white placeholder-dark-500 focus:outline-none focus:border-primary-500/50 input-glow transition-all">
                             </div>
                         </div>
 
@@ -238,24 +269,18 @@
                             <div class="space-y-2">
                                 <label for="max-pages" class="block text-sm font-medium text-dark-300">
                                     Max Pages
-                                    <span class="ml-1 text-dark-500 cursor-help" title="Maximum number of pages to crawl">ⓘ</span>
+                                    <span class="ml-1 text-dark-500 cursor-help"
+                                        title="Maximum number of pages to crawl">ⓘ</span>
                                 </label>
-                                <input 
-                                    type="number" 
-                                    id="max-pages" 
-                                    value="20" 
-                                    min="1" 
-                                    max="100"
-                                    class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all"
-                                >
+                                <input type="number" id="max-pages" value="20" min="1" max="100"
+                                    class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all">
                             </div>
 
                             <div class="space-y-2">
-                                <label for="viewport-width" class="block text-sm font-medium text-dark-300">Viewport</label>
-                                <select 
-                                    id="viewport-width"
-                                    class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all cursor-pointer"
-                                >
+                                <label for="viewport-width"
+                                    class="block text-sm font-medium text-dark-300">Viewport</label>
+                                <select id="viewport-width"
+                                    class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all cursor-pointer">
                                     <option value="1920">Desktop (1920px)</option>
                                     <option value="1366">Laptop (1366px)</option>
                                     <option value="768">Tablet (768px)</option>
@@ -264,81 +289,80 @@
                             </div>
 
                             <div class="space-y-2">
-                                <label for="scroll-delay" class="block text-sm font-medium text-dark-300">Scroll Delay</label>
+                                <label for="scroll-delay" class="block text-sm font-medium text-dark-300">Scroll
+                                    Delay</label>
                                 <div class="relative">
-                                    <input 
-                                        type="number" 
-                                        id="scroll-delay" 
-                                        value="100" 
-                                        min="50" 
-                                        max="1500" 
-                                        step="50"
-                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all"
-                                    >
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">ms</span>
+                                    <input type="number" id="scroll-delay" value="100" min="50" max="1500" step="50"
+                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all">
+                                    <span
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">ms</span>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="page-timeout" class="block text-sm font-medium text-dark-300">Timeout</label>
+                                <label for="page-timeout"
+                                    class="block text-sm font-medium text-dark-300">Timeout</label>
                                 <div class="relative">
-                                    <input 
-                                        type="number" 
-                                        id="page-timeout" 
-                                        value="30" 
-                                        min="10" 
-                                        max="120"
-                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all"
-                                    >
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">sec</span>
+                                    <input type="number" id="page-timeout" value="30" min="10" max="120"
+                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all">
+                                    <span
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">sec</span>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label for="wait-after-load" class="block text-sm font-medium text-dark-300">Wait After Load</label>
+                                <label for="wait-after-load" class="block text-sm font-medium text-dark-300">Wait After
+                                    Load</label>
                                 <div class="relative">
-                                    <input 
-                                        type="number" 
-                                        id="wait-after-load" 
-                                        value="1000" 
-                                        min="0" 
-                                        max="5000" 
-                                        step="100"
-                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all"
-                                    >
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">ms</span>
+                                    <input type="number" id="wait-after-load" value="1000" min="0" max="5000" step="100"
+                                        class="w-full px-4 py-2.5 bg-dark-800/50 border border-dark-600/50 rounded-xl text-white focus:outline-none focus:border-primary-500/50 input-glow transition-all">
+                                    <span
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-500 text-sm">ms</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Smart Deduplication Toggle -->
-                        <div class="mt-6 p-4 bg-gradient-to-r from-violet-500/10 to-primary-500/10 rounded-xl border border-violet-500/20">
+                        <div
+                            class="mt-6 p-4 bg-gradient-to-r from-violet-500/10 to-primary-500/10 rounded-xl border border-violet-500/20">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-primary-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-primary-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                                         </svg>
                                     </div>
                                     <div>
                                         <h4 class="text-sm font-semibold text-white flex items-center gap-2">
                                             Smart URL Deduplication
-                                            <span class="px-2 py-0.5 text-xs font-medium bg-violet-500/30 text-violet-300 rounded-full">NEW</span>
+                                            <span
+                                                class="px-2 py-0.5 text-xs font-medium bg-violet-500/30 text-violet-300 rounded-full">NEW</span>
                                         </h4>
                                         <p class="text-xs text-dark-400 mt-0.5">
-                                            Detects similar URLs like <code class="text-violet-400">/category/slug-1</code>, <code class="text-violet-400">/category/slug-2</code> and crawls only one per pattern
+                                            Detects similar URLs like <code
+                                                class="text-violet-400">/category/slug-1</code>, <code
+                                                class="text-violet-400">/category/slug-2</code> and crawls only one per
+                                            pattern
                                         </p>
                                     </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="smart-dedup" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-dark-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-violet-500 peer-checked:to-primary-500"></div>
+                                    <div
+                                        class="w-11 h-6 bg-dark-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-500/50 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-violet-500 peer-checked:to-primary-500">
+                                    </div>
                                 </label>
                             </div>
                             <div id="smart-dedup-details" class="mt-3 pt-3 border-t border-dark-700/50">
                                 <p class="text-xs text-dark-400 leading-relaxed">
-                                    <strong class="text-dark-300">How it works:</strong> The crawler analyzes URL patterns and identifies dynamic segments like slugs, IDs, and UUIDs. 
-                                    For example, <code class="text-primary-400">/product/blue-widget</code> and <code class="text-primary-400">/product/red-gadget</code> are recognized as the same pattern 
+                                    <strong class="text-dark-300">How it works:</strong> The crawler analyzes URL
+                                    patterns and identifies dynamic segments like slugs, IDs, and UUIDs.
+                                    For example, <code class="text-primary-400">/product/blue-widget</code> and <code
+                                        class="text-primary-400">/product/red-gadget</code> are recognized as the same
+                                    pattern
                                     <code class="text-violet-400">/product/{slug}</code>, so only one is crawled.
                                 </p>
                             </div>
@@ -346,24 +370,19 @@
 
                         <!-- Action Buttons -->
                         <div class="flex items-center gap-3 pt-2">
-                            <button 
-                                type="submit" 
-                                id="start-btn" 
-                                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transition-all"
-                            >
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                            <button type="submit" id="start-btn"
+                                class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transition-all">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
                                 </svg>
                                 Start Crawling
                             </button>
-                            <button 
-                                type="button" 
-                                id="cancel-btn" 
-                                disabled
-                                class="flex items-center gap-2 px-6 py-3 bg-red-500/20 text-red-400 font-medium rounded-xl border border-red-500/30 hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <button type="button" id="cancel-btn" disabled
+                                class="flex items-center gap-2 px-6 py-3 bg-red-500/20 text-red-400 font-medium rounded-xl border border-red-500/30 hover:bg-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
                                 </svg>
                                 Cancel
                             </button>
@@ -385,12 +404,14 @@
                             <span>pages</span>
                         </div>
                     </div>
-                    
+
                     <!-- Progress Bar -->
                     <div class="h-2 bg-dark-700/50 rounded-full overflow-hidden mb-3">
-                        <div id="progress-bar" class="h-full bg-gradient-to-r from-primary-500 to-violet-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        <div id="progress-bar"
+                            class="h-full bg-gradient-to-r from-primary-500 to-violet-500 rounded-full transition-all duration-300"
+                            style="width: 0%"></div>
                     </div>
-                    
+
                     <p id="current-url" class="text-sm text-dark-400 truncate">Initializing...</p>
                 </div>
 
@@ -398,11 +419,12 @@
                 <div class="glass rounded-2xl overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-dark-700/50">
                         <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
                             </svg>
                             <h3 class="font-semibold text-white">Status Log</h3>
                         </div>
@@ -422,16 +444,46 @@
                 <div id="screenshots-panel" class="glass rounded-2xl overflow-hidden hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-dark-700/50">
                         <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <path d="M21 15l-5-5L5 21"/>
+                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="M21 15l-5-5L5 21" />
                             </svg>
                             <h3 class="font-semibold text-white">Screenshots</h3>
-                            <span id="screenshot-count" class="px-2 py-0.5 text-xs font-medium bg-primary-500/20 text-primary-400 rounded-full">0</span>
+                            <span id="screenshot-count"
+                                class="px-2 py-0.5 text-xs font-medium bg-primary-500/20 text-primary-400 rounded-full">0</span>
+                            <span id="screenshot-visible-count" class="text-xs text-dark-500"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="download-all-btn"
+                                class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-medium rounded-lg shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                <span>Download All (ZIP)</span>
+                            </button>
                         </div>
                     </div>
                     <div id="screenshots-grid" class="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                    <!-- Load More Section -->
+                    <div id="load-more-section" class="hidden px-6 py-4 border-t border-dark-700/50">
+                        <div class="flex items-center justify-between">
+                            <span id="load-more-info" class="text-sm text-dark-400"></span>
+                            <button id="load-more-btn"
+                                class="flex items-center gap-2 px-4 py-2 bg-dark-700/50 hover:bg-dark-600/50 text-white text-sm font-medium rounded-lg border border-dark-600/50 transition-all">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9" />
+                                </svg>
+                                Load More
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -440,26 +492,29 @@
                 <div class="glass rounded-2xl overflow-hidden">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-dark-700/50">
                         <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                                <path d="M3 3v5h5"/>
-                                <path d="M12 7v5l4 2"/>
+                            <svg class="w-5 h-5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                                <path d="M12 7v5l4 2" />
                             </svg>
                             <h3 class="font-semibold text-white">Previous Sessions</h3>
                         </div>
-                        <button id="refresh-history-btn" class="flex items-center gap-2 text-sm text-dark-400 hover:text-dark-200 transition-colors">
+                        <button id="refresh-history-btn"
+                            class="flex items-center gap-2 text-sm text-dark-400 hover:text-dark-200 transition-colors">
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M23 4v6h-6"/>
-                                <path d="M1 20v-6h6"/>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                <path d="M23 4v6h-6" />
+                                <path d="M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                             </svg>
                             Refresh
                         </button>
                     </div>
                     <div id="history-list" class="p-4">
                         <div class="empty-state flex flex-col items-center justify-center py-12 text-center">
-                            <svg class="w-16 h-16 text-dark-600 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                            <svg class="w-16 h-16 text-dark-600 mb-4" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="1.5">
+                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                             </svg>
                             <p class="text-dark-400 font-medium">No previous sessions found</p>
                             <span class="text-sm text-dark-500">Start a new crawl to see history here</span>
@@ -478,14 +533,16 @@
                 <div class="flex items-center justify-between px-6 py-4 border-b border-dark-700/50">
                     <div>
                         <h4 id="modal-title" class="font-semibold text-white">Screenshot</h4>
-                        <a id="modal-url" href="#" target="_blank" class="text-sm text-primary-400 hover:text-primary-300 transition-colors truncate block max-w-md">
+                        <a id="modal-url" href="#" target="_blank"
+                            class="text-sm text-primary-400 hover:text-primary-300 transition-colors truncate block max-w-md">
                             View Page
                         </a>
                     </div>
-                    <button id="modal-close-btn" class="w-8 h-8 flex items-center justify-center rounded-lg text-dark-400 hover:text-white hover:bg-dark-700/50 transition-colors">
+                    <button id="modal-close-btn"
+                        class="w-8 h-8 flex items-center justify-center rounded-lg text-dark-400 hover:text-white hover:bg-dark-700/50 transition-colors">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
                 </div>
@@ -493,11 +550,12 @@
                     <img id="modal-image" src="" alt="Screenshot" class="w-full rounded-lg shadow-2xl">
                 </div>
                 <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-dark-700/50">
-                    <a id="modal-download" href="#" download class="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors">
+                    <a id="modal-download" href="#" download
+                        class="flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
                         Download
                     </a>
@@ -509,4 +567,5 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

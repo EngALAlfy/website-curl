@@ -22,6 +22,11 @@ const clearLogBtn = document.getElementById('clear-log-btn');
 const screenshotsPanel = document.getElementById('screenshots-panel');
 const screenshotsGrid = document.getElementById('screenshots-grid');
 const screenshotCount = document.getElementById('screenshot-count');
+const screenshotVisibleCount = document.getElementById('screenshot-visible-count');
+const downloadAllBtn = document.getElementById('download-all-btn');
+const loadMoreSection = document.getElementById('load-more-section');
+const loadMoreInfo = document.getElementById('load-more-info');
+const loadMoreBtn = document.getElementById('load-more-btn');
 const historyList = document.getElementById('history-list');
 const refreshHistoryBtn = document.getElementById('refresh-history-btn');
 const modal = document.getElementById('screenshot-modal');
@@ -35,6 +40,11 @@ const modalBackdrop = document.querySelector('.modal-backdrop');
 // State
 let currentSessionId = null;
 let isCrawling = false;
+
+// Pagination state
+const ITEMS_PER_PAGE = 12;
+let allScreenshots = [];  // Store all screenshot data
+let visibleCount = 0;     // How many are currently displayed
 
 // Tab Navigation
 document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -100,6 +110,10 @@ crawlForm.addEventListener('submit', (e) => {
     // Clear previous results
     screenshotsGrid.innerHTML = '';
     screenshotCount.textContent = '0';
+    allScreenshots = [];  // Reset screenshot storage
+    visibleCount = 0;
+    downloadAllBtn.disabled = true;
+    loadMoreSection.classList.add('hidden');
 
     // Start crawling
     socket.emit('start-crawl', { url, options });
@@ -156,7 +170,14 @@ socket.on('screenshot', (data) => {
 socket.on('complete', (data) => {
     setCrawlingState(false);
     addLogEntry('success', `Crawl completed! Captured ${data.totalPages} pages.`);
-    currentSessionId = null;
+
+    // Enable download button
+    if (currentSessionId && data.totalPages > 0) {
+        downloadAllBtn.disabled = false;
+    }
+
+    // Keep session ID for download
+    // currentSessionId will be kept until next crawl starts
 });
 
 socket.on('connect_error', () => {
@@ -222,12 +243,26 @@ function addLogEntry(type, message) {
     statusLog.scrollTop = statusLog.scrollHeight;
 }
 
-function addScreenshotCard(data) {
+function addScreenshotCard(data, appendToGrid = true) {
+    // Store screenshot data
+    allScreenshots.push(data);
+
+    // Only render if within visible limit (pagination)
+    if (visibleCount < ITEMS_PER_PAGE) {
+        renderScreenshotCard(data);
+        visibleCount++;
+    }
+
+    // Update pagination UI
+    updatePaginationUI();
+}
+
+function renderScreenshotCard(data) {
     const card = document.createElement('div');
     card.className = 'screenshot-card group relative bg-dark-800/50 rounded-xl overflow-hidden border border-dark-700/50 cursor-pointer';
     card.innerHTML = `
         <div class="aspect-video relative overflow-hidden">
-            <img src="${data.screenshot}" alt="${escapeHtml(data.title)}" class="w-full h-full object-cover object-top">
+            <img src="${data.screenshot}" alt="${escapeHtml(data.title)}" class="w-full h-full object-cover object-top" loading="lazy">
             <div class="absolute inset-0 bg-gradient-to-t from-dark-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                 <span class="text-xs text-white font-medium truncate">${escapeHtml(data.title)}</span>
             </div>
@@ -244,6 +279,55 @@ function addScreenshotCard(data) {
     card.addEventListener('click', () => openModal(data));
     screenshotsGrid.appendChild(card);
 }
+
+function updatePaginationUI() {
+    const total = allScreenshots.length;
+    const showing = Math.min(visibleCount, total);
+
+    // Update visible count text
+    if (total > ITEMS_PER_PAGE) {
+        screenshotVisibleCount.textContent = `(showing ${showing} of ${total})`;
+    } else {
+        screenshotVisibleCount.textContent = '';
+    }
+
+    // Show/hide load more section
+    if (total > visibleCount) {
+        loadMoreSection.classList.remove('hidden');
+        const remaining = total - visibleCount;
+        loadMoreInfo.textContent = `${remaining} more screenshot${remaining > 1 ? 's' : ''} available`;
+    } else {
+        loadMoreSection.classList.add('hidden');
+    }
+}
+
+function loadMoreScreenshots() {
+    const startIdx = visibleCount;
+    const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, allScreenshots.length);
+
+    for (let i = startIdx; i < endIdx; i++) {
+        renderScreenshotCard(allScreenshots[i]);
+        visibleCount++;
+    }
+
+    updatePaginationUI();
+}
+
+// Load More button handler
+loadMoreBtn.addEventListener('click', loadMoreScreenshots);
+
+// Download All button handler
+downloadAllBtn.addEventListener('click', () => {
+    if (!currentSessionId) {
+        addLogEntry('error', 'No session available for download');
+        return;
+    }
+
+    addLogEntry('info', 'Starting download...');
+
+    // Use direct navigation for file download - most reliable method
+    window.location.href = `/api/sessions/${currentSessionId}/download`;
+});
 
 function openModal(data) {
     modalTitle.textContent = data.title;
@@ -297,8 +381,17 @@ async function loadHistory() {
                             ${session.pagesProcessed || 0} pages • 
                             ${formatDate(session.startTime)}
                         </p>
+                        <p class="text-xs text-dark-500 mt-1 font-mono truncate">${session.sessionId}</p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <button onclick="downloadSession('${session.sessionId}')" class="px-3 py-1.5 text-sm bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center gap-1" title="Download all screenshots as ZIP">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            ZIP
+                        </button>
                         <a href="/screenshots/${session.sessionId}/" target="_blank" class="px-3 py-1.5 text-sm bg-primary-500/20 text-primary-400 rounded-lg hover:bg-primary-500/30 transition-colors">
                             View
                         </a>
@@ -313,6 +406,23 @@ async function loadHistory() {
         addLogEntry('error', 'Failed to load history');
     }
 }
+
+// Download session ZIP
+function downloadSession(sessionId) {
+    // Create an iframe for download to avoid navigating away from page
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `/api/sessions/${sessionId}/download`;
+    document.body.appendChild(iframe);
+
+    // Remove iframe after download starts
+    setTimeout(() => {
+        document.body.removeChild(iframe);
+    }, 5000);
+}
+
+// Make downloadSession available globally
+window.downloadSession = downloadSession;
 
 async function deleteSession(sessionId) {
     if (!confirm('Are you sure you want to delete this session?')) return;
