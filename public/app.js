@@ -9,6 +9,7 @@ const viewportWidthSelect = document.getElementById('viewport-width');
 const scrollDelayInput = document.getElementById('scroll-delay');
 const pageTimeoutInput = document.getElementById('page-timeout');
 const waitAfterLoadInput = document.getElementById('wait-after-load');
+const smartDedupCheckbox = document.getElementById('smart-dedup');
 const startBtn = document.getElementById('start-btn');
 const cancelBtn = document.getElementById('cancel-btn');
 const progressPanel = document.getElementById('progress-panel');
@@ -39,7 +40,7 @@ let isCrawling = false;
 document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
         const targetTab = tab.dataset.tab;
-        
+
         // Update tab buttons
         document.querySelectorAll('.nav-tab').forEach(t => {
             t.classList.remove('active', 'bg-primary-500/20', 'text-primary-400');
@@ -47,13 +48,13 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
         });
         tab.classList.add('active', 'bg-primary-500/20', 'text-primary-400');
         tab.classList.remove('text-dark-400', 'hover:text-dark-200');
-        
+
         // Update tab content
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.add('hidden');
         });
         document.getElementById(`${targetTab}-tab`).classList.remove('hidden');
-        
+
         // Load history when switching to history tab
         if (targetTab === 'history') {
             loadHistory();
@@ -67,15 +68,15 @@ document.querySelector('.nav-tab.active').classList.add('bg-primary-500/20', 'te
 // Form submission
 crawlForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     if (isCrawling) return;
-    
+
     const url = websiteUrlInput.value.trim();
     if (!url) {
         addLogEntry('error', 'Please enter a valid URL');
         return;
     }
-    
+
     // Validate URL
     try {
         new URL(url);
@@ -83,7 +84,7 @@ crawlForm.addEventListener('submit', (e) => {
         addLogEntry('error', 'Invalid URL format. Please include http:// or https://');
         return;
     }
-    
+
     const options = {
         maxPages: parseInt(maxPagesInput.value) || 20,
         viewport: {
@@ -92,16 +93,17 @@ crawlForm.addEventListener('submit', (e) => {
         },
         scrollDelay: parseInt(scrollDelayInput.value) || 100,
         pageTimeout: (parseInt(pageTimeoutInput.value) || 30) * 1000,
-        waitAfterLoad: parseInt(waitAfterLoadInput.value) || 1000
+        waitAfterLoad: parseInt(waitAfterLoadInput.value) || 1000,
+        smartDedup: smartDedupCheckbox.checked
     };
-    
+
     // Clear previous results
     screenshotsGrid.innerHTML = '';
     screenshotCount.textContent = '0';
-    
+
     // Start crawling
     socket.emit('start-crawl', { url, options });
-    
+
     // Update UI state
     setCrawlingState(true);
     addLogEntry('info', `Starting crawl of ${url}`);
@@ -139,7 +141,7 @@ socket.on('progress', (data) => {
     pagesCount.textContent = data.current;
     pagesTotal.textContent = data.total;
     currentUrl.textContent = data.url;
-    
+
     const percentage = (data.current / data.total) * 100;
     progressBar.style.width = `${percentage}%`;
 });
@@ -167,7 +169,7 @@ function setCrawlingState(crawling) {
     startBtn.disabled = crawling;
     cancelBtn.disabled = !crawling;
     websiteUrlInput.disabled = crawling;
-    
+
     if (crawling) {
         progressPanel.classList.remove('hidden');
         startBtn.innerHTML = `
@@ -191,21 +193,21 @@ function setCrawlingState(crawling) {
 function addLogEntry(type, message) {
     const now = new Date();
     const time = now.toLocaleTimeString('en-US', { hour12: false });
-    
+
     const colorClasses = {
         info: 'text-primary-400',
         success: 'text-emerald-400',
         warning: 'text-amber-400',
         error: 'text-red-400'
     };
-    
+
     const icons = {
         info: '●',
         success: '✓',
         warning: '⚠',
         error: '✕'
     };
-    
+
     const entry = document.createElement('div');
     entry.className = 'log-entry flex items-start gap-3 text-sm animate-fade-in';
     entry.innerHTML = `
@@ -215,7 +217,7 @@ function addLogEntry(type, message) {
             ${escapeHtml(message)}
         </span>
     `;
-    
+
     statusLog.appendChild(entry);
     statusLog.scrollTop = statusLog.scrollHeight;
 }
@@ -238,7 +240,7 @@ function addScreenshotCard(data) {
             </div>
         </div>
     `;
-    
+
     card.addEventListener('click', () => openModal(data));
     screenshotsGrid.appendChild(card);
 }
@@ -272,7 +274,7 @@ async function loadHistory() {
     try {
         const response = await fetch('/api/sessions');
         const sessions = await response.json();
-        
+
         if (sessions.length === 0) {
             historyList.innerHTML = `
                 <div class="empty-state flex flex-col items-center justify-center py-12 text-center">
@@ -285,7 +287,7 @@ async function loadHistory() {
             `;
             return;
         }
-        
+
         historyList.innerHTML = sessions.map(session => `
             <div class="session-card bg-dark-800/50 rounded-xl p-4 border border-dark-700/50 mb-3 hover:border-dark-600/50 transition-colors">
                 <div class="flex items-start justify-between gap-4">
@@ -314,7 +316,7 @@ async function loadHistory() {
 
 async function deleteSession(sessionId) {
     if (!confirm('Are you sure you want to delete this session?')) return;
-    
+
     try {
         await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' });
         loadHistory();

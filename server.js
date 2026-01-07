@@ -37,6 +37,129 @@ function normalizeUrl(url) {
     }
 }
 
+// Smart URL pattern detection
+// Converts URLs like /category/my-slug-123 to /category/{item}
+// This helps identify URLs that represent the same content type
+function getUrlPattern(url) {
+    try {
+        const parsed = new URL(url);
+        const pathSegments = parsed.pathname.split('/').filter(Boolean);
+
+        // Common collection/listing path segments that indicate the next segment(s) are items
+        const collectionPaths = new Set([
+            // E-commerce
+            'product', 'products', 'item', 'items',
+            'category', 'categories', 'cat',
+            'collection', 'collections',
+            'shop', 'store', 'catalog',
+            'brand', 'brands',
+            'tag', 'tags',
+            // Content
+            'blog', 'blogs', 'post', 'posts',
+            'article', 'articles', 'news',
+            'page', 'pages',
+            'portfolio', 'project', 'projects',
+            'gallery', 'galleries',
+            'event', 'events',
+            'case-study', 'case-studies',
+            // Users/Authors
+            'author', 'authors', 'user', 'users', 'profile', 'profiles',
+            'team', 'member', 'members',
+            // Documentation
+            'docs', 'doc', 'documentation', 'guide', 'guides',
+            'tutorial', 'tutorials', 'lesson', 'lessons',
+            // Forums/Community
+            'topic', 'topics', 'thread', 'threads',
+            'forum', 'forums', 'discussion', 'discussions',
+            // Media
+            'video', 'videos', 'photo', 'photos', 'image', 'images',
+            // Real Estate / Listings
+            'property', 'properties', 'listing', 'listings',
+            'apartment', 'apartments', 'house', 'houses',
+            // Jobs
+            'job', 'jobs', 'career', 'careers', 'vacancy', 'vacancies',
+            // Services
+            'service', 'services',
+            // Localization
+            'location', 'locations', 'city', 'cities', 'region', 'regions'
+        ]);
+
+        // Track if previous segment was a collection path
+        let afterCollectionPath = false;
+
+        const patternSegments = pathSegments.map((segment, index) => {
+            const lowerSegment = segment.toLowerCase();
+
+            // Check if this segment is a collection path indicator
+            if (collectionPaths.has(lowerSegment)) {
+                afterCollectionPath = true;
+                return segment; // Keep the collection path as-is
+            }
+
+            // If we're after a collection path, treat this segment as an item
+            if (afterCollectionPath) {
+                afterCollectionPath = false; // Reset for nested paths
+                return '{item}';
+            }
+
+            // Check if segment is a UUID
+            if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
+                return '{uuid}';
+            }
+
+            // Check if segment is purely numeric (ID)
+            if (/^\d+$/.test(segment)) {
+                return '{id}';
+            }
+
+            // Check if segment looks like a slug (contains hyphens/underscores with alphanumeric)
+            if (index > 0 && /^[a-z0-9]+[-_][a-z0-9-_]+$/i.test(segment)) {
+                return '{slug}';
+            }
+
+            // Check for segments that end with a number (like article-123, post-456)
+            if (index > 0 && /^[a-z-_]+\d+$/i.test(segment)) {
+                return '{slug-id}';
+            }
+
+            // Check for encoded segments or very long segments (likely dynamic)
+            if (segment.length > 50 || /%[0-9A-F]{2}/i.test(segment)) {
+                return '{dynamic}';
+            }
+
+            // Check for segments that look like date-based slugs (2024-01-15-article-title)
+            if (/^\d{4}-\d{2}-\d{2}/.test(segment)) {
+                return '{date-slug}';
+            }
+
+            // Check for hash-like segments (short random strings)
+            if (index > 0 && /^[a-z0-9]{6,12}$/i.test(segment) && !/^[a-z]+$/i.test(segment)) {
+                return '{hash}';
+            }
+
+            // Keep the segment as-is (static path)
+            return segment;
+        });
+
+        return parsed.origin + '/' + patternSegments.join('/');
+    } catch {
+        return url;
+    }
+}
+
+// Check if a URL pattern has already been visited
+function isPatternVisited(url, visitedPatterns) {
+    const pattern = getUrlPattern(url);
+    return visitedPatterns.has(pattern);
+}
+
+// Mark a URL pattern as visited
+function markPatternVisited(url, visitedPatterns) {
+    const pattern = getUrlPattern(url);
+    visitedPatterns.add(pattern);
+    return pattern;
+}
+
 // Check if URL is internal (same domain)
 function isInternalUrl(baseUrl, testUrl) {
     try {
@@ -63,9 +186,9 @@ async function extractLinks(page, baseUrl) {
                 const url = new URL(link);
                 // Skip anchors, javascript, mailto, tel links
                 return !url.href.includes('#') &&
-                       !url.protocol.includes('javascript') &&
-                       !url.protocol.includes('mailto') &&
-                       !url.protocol.includes('tel');
+                    !url.protocol.includes('javascript') &&
+                    !url.protocol.includes('mailto') &&
+                    !url.protocol.includes('tel');
             } catch {
                 return false;
             }
@@ -119,10 +242,13 @@ async function crawlWebsite(sessionId, startUrl, options, socket) {
         viewport = { width: 1920, height: 1080 },
         scrollDelay = 100,
         pageTimeout = 30000,
-        waitAfterLoad = 1000
+        waitAfterLoad = 1000,
+        smartDedup = false  // Smart URL pattern deduplication
     } = options;
 
     const visited = new Set();
+    const visitedPatterns = new Set();  // Track URL patterns for smart dedup
+    const skippedUrls = [];  // Track skipped URLs for reporting
     const queue = [normalizeUrl(startUrl)];
     const results = [];
     const sessionDir = path.join(screenshotsDir, sessionId);
@@ -174,8 +300,22 @@ async function crawlWebsite(sessionId, startUrl, options, socket) {
 
                 // Extract internal links
                 const links = await extractLinks(page, startUrl);
+
+                // Mark current URL's pattern as visited (for smart dedup)
+                if (smartDedup) {
+                    const pattern = markPatternVisited(currentUrl, visitedPatterns);
+                    socket.emit('status', { type: 'info', message: `Pattern detected: ${pattern}` });
+                }
+
                 links.forEach(link => {
                     if (!visited.has(link) && !queue.includes(link)) {
+                        // Smart deduplication: skip if we've already seen this pattern
+                        if (smartDedup && isPatternVisited(link, visitedPatterns)) {
+                            const pattern = getUrlPattern(link);
+                            skippedUrls.push({ url: link, pattern, reason: 'duplicate_pattern' });
+                            socket.emit('status', { type: 'warning', message: `Skipped (same pattern): ${link}` });
+                            return;
+                        }
                         queue.push(link);
                     }
                 });
@@ -229,6 +369,9 @@ async function crawlWebsite(sessionId, startUrl, options, socket) {
             startTime: session.startTime,
             endTime: new Date().toISOString(),
             pagesProcessed: results.length,
+            patternsFound: smartDedup ? visitedPatterns.size : null,
+            skippedDuplicates: smartDedup ? skippedUrls.length : null,
+            skippedUrls: smartDedup ? skippedUrls : null,
             results
         }, null, 2));
 
