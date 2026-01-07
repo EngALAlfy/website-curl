@@ -111,7 +111,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Islam H Alalfy**
 
 - Website: [alalfy.com](https://alalfy.com)
-- GitHub: [@ialalfy](https://github.com/ialalfy)
+- GitHub: [@ialalfy](https://github.com/engalalfy)
 
 ---
 
