@@ -1,6 +1,6 @@
-# 📸 ScreenCrawl - Website Screenshot Crawler
+# 📸 ScreenCrawl - Website Screenshot & Video Crawler
 
-A powerful web-based tool that crawls websites and captures full-page screenshots of every internal page. Perfect for visual documentation, archival, testing, and auditing.
+A powerful web-based tool that crawls websites and captures full-page screenshots or scroll videos of every internal page. Perfect for visual documentation, archival, testing, and auditing.
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)
 ![Puppeteer](https://img.shields.io/badge/Puppeteer-21+-blue?logo=puppeteer)
@@ -10,12 +10,14 @@ A powerful web-based tool that crawls websites and captures full-page screenshot
 
 - 🔗 **Automatic Link Discovery** - Crawls all internal links on your website
 - 📸 **Full-Page Screenshots** - Captures entire pages with scroll support for lazy-loaded content
+- 🎬 **Video Recording** - Records smooth scrolling videos of any webpage _(NEW!)_
 - 🎨 **Beautiful Web UI** - Modern glassmorphism design with Tailwind CSS
 - ⚡ **Real-time Progress** - Live updates via Socket.io
-- 📱 **Responsive Viewports** - Desktop, laptop, tablet, and mobile screenshot options
+- 📱 **Responsive Viewports** - Desktop, laptop, tablet, and mobile options
 - 📁 **Session History** - Browse and manage previous crawl sessions
+- 🧠 **Smart URL Deduplication** - Detects similar URL patterns to avoid duplicate content
 - ⚙️ **Configurable Settings** - Max pages, scroll delay, timeouts, and more
-- 💾 **Download Screenshots** - Save individual screenshots or browse the gallery
+- 💾 **Download Media** - Save screenshots as ZIP or download videos directly
 
 ## 🚀 Quick Start
 
@@ -23,6 +25,7 @@ A powerful web-based tool that crawls websites and captures full-page screenshot
 
 - [Node.js](https://nodejs.org/) v18 or higher
 - npm (comes with Node.js)
+- [FFmpeg](https://ffmpeg.org/download.html) (required for video recording feature)
 
 ### Installation
 
@@ -65,6 +68,8 @@ A powerful web-based tool that crawls websites and captures full-page screenshot
 
 ## ⚙️ Configuration Options
 
+### Screenshot Mode
+
 | Option          | Default | Description                               |
 | --------------- | ------- | ----------------------------------------- |
 | Max Pages       | 20      | Maximum number of pages to crawl          |
@@ -72,6 +77,19 @@ A powerful web-based tool that crawls websites and captures full-page screenshot
 | Scroll Delay    | 100ms   | Delay between scroll steps                |
 | Page Timeout    | 30s     | Maximum time to wait for page load        |
 | Wait After Load | 1000ms  | Additional wait time after page is loaded |
+| Smart Dedup     | On      | Skip URLs with similar patterns           |
+
+### Video Recording Mode
+
+| Option          | Default | Description                                    |
+| --------------- | ------- | ---------------------------------------------- |
+| Scroll Speed    | 50px    | Pixels per frame (lower = slower/smoother)     |
+| Frame Rate      | 30 FPS  | Video frame rate (15, 24, 30, or 60)           |
+| Pause at Top    | 1000ms  | Duration to pause at top before scrolling      |
+| Pause at Bottom | 1000ms  | Duration to pause at bottom after scrolling    |
+| Viewport Width  | 1920px  | Video width (Desktop)                          |
+| Page Timeout    | 30s     | Maximum time to wait for page load             |
+| Wait After Load | 2000ms  | Wait time for dynamic content before recording |
 
 ## 📁 Project Structure
 
@@ -83,6 +101,7 @@ website-curl/
 │   ├── index.html      # Web UI with Tailwind CSS
 │   └── app.js          # Frontend JavaScript
 ├── screenshots/        # Generated screenshots (auto-created)
+├── videos/             # Generated videos (auto-created)
 └── README.md
 ```
 

@@ -37,9 +37,35 @@ const modalDownload = document.getElementById('modal-download');
 const modalCloseBtn = document.getElementById('modal-close-btn');
 const modalBackdrop = document.querySelector('.modal-backdrop');
 
+// Video Mode DOM Elements
+const modeScreenshots = document.getElementById('mode-screenshots');
+const modeVideo = document.getElementById('mode-video');
+const screenshotsSettings = document.getElementById('screenshots-settings');
+const videoSettings = document.getElementById('video-settings');
+const scrollSpeedInput = document.getElementById('scroll-speed');
+const frameRateSelect = document.getElementById('frame-rate');
+const pauseTopInput = document.getElementById('pause-top');
+const pauseBottomInput = document.getElementById('pause-bottom');
+const videoViewportSelect = document.getElementById('video-viewport');
+const videoTimeoutInput = document.getElementById('video-timeout');
+const videoWaitLoadInput = document.getElementById('video-wait-load');
+const videoResultPanel = document.getElementById('video-result-panel');
+const videoProgressPanel = document.getElementById('video-progress-panel');
+const videoProgressBar = document.getElementById('video-progress-bar');
+const videoFramesCount = document.getElementById('video-frames-count');
+const videoCurrentStatus = document.getElementById('video-current-status');
+const videoPreview = document.getElementById('video-preview');
+const videoTitle = document.getElementById('video-title');
+const videoUrlLink = document.getElementById('video-url-link');
+const videoFramesInfo = document.getElementById('video-frames-info');
+const videoTimestamp = document.getElementById('video-timestamp');
+const videoFileSize = document.getElementById('video-file-size');
+const downloadVideoBtn = document.getElementById('download-video-btn');
+
 // State
 let currentSessionId = null;
 let isCrawling = false;
+let captureMode = 'screenshots'; // 'screenshots' or 'video'
 
 // Pagination state
 const ITEMS_PER_PAGE = 12;
@@ -75,6 +101,44 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 // Initialize active tab styling
 document.querySelector('.nav-tab.active').classList.add('bg-primary-500/20', 'text-primary-400');
 
+// Capture Mode Toggle
+function setCaptureMode(mode) {
+    captureMode = mode;
+    
+    // Update button styles
+    if (mode === 'screenshots') {
+        modeScreenshots.classList.add('bg-primary-500/20', 'text-primary-400');
+        modeScreenshots.classList.remove('text-dark-400', 'hover:text-dark-200');
+        modeVideo.classList.remove('bg-primary-500/20', 'text-primary-400');
+        modeVideo.classList.add('text-dark-400', 'hover:text-dark-200');
+        screenshotsSettings.classList.remove('hidden');
+        videoSettings.classList.add('hidden');
+        startBtn.innerHTML = `
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Start Crawling
+        `;
+    } else {
+        modeVideo.classList.add('bg-primary-500/20', 'text-primary-400');
+        modeVideo.classList.remove('text-dark-400', 'hover:text-dark-200');
+        modeScreenshots.classList.remove('bg-primary-500/20', 'text-primary-400');
+        modeScreenshots.classList.add('text-dark-400', 'hover:text-dark-200');
+        videoSettings.classList.remove('hidden');
+        screenshotsSettings.classList.add('hidden');
+        startBtn.innerHTML = `
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="23 7 16 12 23 17 23 7"/>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            Record Video
+        `;
+    }
+}
+
+modeScreenshots.addEventListener('click', () => setCaptureMode('screenshots'));
+modeVideo.addEventListener('click', () => setCaptureMode('video'));
+
 // Form submission
 crawlForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -95,32 +159,65 @@ crawlForm.addEventListener('submit', (e) => {
         return;
     }
 
-    const options = {
-        maxPages: parseInt(maxPagesInput.value) || 20,
-        viewport: {
-            width: parseInt(viewportWidthSelect.value) || 1920,
-            height: 1080
-        },
-        scrollDelay: parseInt(scrollDelayInput.value) || 100,
-        pageTimeout: (parseInt(pageTimeoutInput.value) || 30) * 1000,
-        waitAfterLoad: parseInt(waitAfterLoadInput.value) || 1000,
-        smartDedup: smartDedupCheckbox.checked
-    };
+    if (captureMode === 'screenshots') {
+        // Screenshot mode
+        const options = {
+            maxPages: parseInt(maxPagesInput.value) || 20,
+            viewport: {
+                width: parseInt(viewportWidthSelect.value) || 1920,
+                height: 1080
+            },
+            scrollDelay: parseInt(scrollDelayInput.value) || 100,
+            pageTimeout: (parseInt(pageTimeoutInput.value) || 30) * 1000,
+            waitAfterLoad: parseInt(waitAfterLoadInput.value) || 1000,
+            smartDedup: smartDedupCheckbox.checked
+        };
 
-    // Clear previous results
-    screenshotsGrid.innerHTML = '';
-    screenshotCount.textContent = '0';
-    allScreenshots = [];  // Reset screenshot storage
-    visibleCount = 0;
-    downloadAllBtn.disabled = true;
-    loadMoreSection.classList.add('hidden');
+        // Clear previous results
+        screenshotsGrid.innerHTML = '';
+        screenshotCount.textContent = '0';
+        allScreenshots = [];
+        visibleCount = 0;
+        downloadAllBtn.disabled = true;
+        loadMoreSection.classList.add('hidden');
 
-    // Start crawling
-    socket.emit('start-crawl', { url, options });
+        // Start crawling
+        socket.emit('start-crawl', { url, options });
 
-    // Update UI state
-    setCrawlingState(true);
-    addLogEntry('info', `Starting crawl of ${url}`);
+        // Update UI state
+        setCrawlingState(true);
+        addLogEntry('info', `Starting crawl of ${url}`);
+    } else {
+        // Video mode
+        const options = {
+            viewport: {
+                width: parseInt(videoViewportSelect.value) || 1920,
+                height: 1080
+            },
+            pageTimeout: (parseInt(videoTimeoutInput.value) || 30) * 1000,
+            waitAfterLoad: parseInt(videoWaitLoadInput.value) || 2000,
+            scrollSpeed: parseInt(scrollSpeedInput.value) || 50,
+            frameRate: parseInt(frameRateSelect.value) || 30,
+            pauseAtTop: parseInt(pauseTopInput.value) || 1000,
+            pauseAtBottom: parseInt(pauseBottomInput.value) || 1000
+        };
+
+        // Hide previous video result
+        videoResultPanel.classList.add('hidden');
+        
+        // Show video progress panel
+        videoProgressPanel.classList.remove('hidden');
+        videoProgressBar.style.width = '0%';
+        videoFramesCount.textContent = '0';
+        videoCurrentStatus.textContent = 'Initializing...';
+
+        // Start video recording
+        socket.emit('start-video', { url, options });
+
+        // Update UI state
+        setCrawlingState(true, true);
+        addLogEntry('info', `Starting video recording of ${url}`);
+    }
 });
 
 // Cancel button
@@ -184,29 +281,79 @@ socket.on('connect_error', () => {
     addLogEntry('error', 'Connection error. Please check if the server is running.');
 });
 
+// Video recording socket event handlers
+socket.on('video-session-started', (data) => {
+    currentSessionId = data.sessionId;
+    addLogEntry('success', `Video session started: ${data.sessionId.substring(0, 8)}...`);
+});
+
+socket.on('video-progress', (data) => {
+    videoProgressBar.style.width = `${data.progress}%`;
+    videoFramesCount.textContent = data.frames;
+    videoCurrentStatus.textContent = `Capturing frames... ${data.progress}%`;
+});
+
+socket.on('video-complete', (data) => {
+    setCrawlingState(false, true);
+    addLogEntry('success', `Video recording complete! ${data.frames} frames captured.`);
+
+    // Hide progress panel
+    videoProgressPanel.classList.add('hidden');
+
+    // Show result panel
+    videoResultPanel.classList.remove('hidden');
+    videoPreview.src = data.video;
+    videoTitle.textContent = data.title;
+    videoUrlLink.href = data.url;
+    videoUrlLink.textContent = data.url;
+    videoFramesInfo.textContent = `${data.frames} frames`;
+    videoTimestamp.textContent = new Date(data.timestamp).toLocaleString();
+    videoFileSize.textContent = data.fileSize;
+    downloadVideoBtn.href = data.video;
+    downloadVideoBtn.download = data.video.split('/').pop();
+});
+
+socket.on('video-error', (data) => {
+    setCrawlingState(false, true);
+    addLogEntry('error', `Video recording failed: ${data.error}`);
+    videoProgressPanel.classList.add('hidden');
+});
+
 // Helper functions
-function setCrawlingState(crawling) {
+function setCrawlingState(crawling, isVideoMode = false) {
     isCrawling = crawling;
     startBtn.disabled = crawling;
     cancelBtn.disabled = !crawling;
     websiteUrlInput.disabled = crawling;
 
     if (crawling) {
-        progressPanel.classList.remove('hidden');
+        if (!isVideoMode) {
+            progressPanel.classList.remove('hidden');
+        }
         startBtn.innerHTML = `
             <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
             </svg>
-            Crawling...
+            ${isVideoMode ? 'Recording...' : 'Crawling...'}
         `;
         startBtn.classList.add('opacity-70', 'cursor-not-allowed');
     } else {
-        startBtn.innerHTML = `
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
-            Start Crawling
-        `;
+        if (captureMode === 'screenshots') {
+            startBtn.innerHTML = `
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Start Crawling
+            `;
+        } else {
+            startBtn.innerHTML = `
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"/>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+                Record Video
+            `;
+        }
         startBtn.classList.remove('opacity-70', 'cursor-not-allowed');
     }
 }
